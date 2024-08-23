@@ -24,7 +24,7 @@ In Remix you will need to set the compiler to
 Alternatively, you can patch `remix-project` with
 
 ```sh
-git apply ../remix-project.patch git apply ../remix-project.patch
+git apply ../remix-project.patch
 ```
 
 This will force the compiler to our custom wrapper and make the change persistent.
