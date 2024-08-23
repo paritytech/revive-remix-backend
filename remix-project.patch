@@ -1,0 +1,14 @@
+diff --git a/libs/remix-solidity/src/lib/es-web-worker/compiler-worker.ts b/libs/remix-solidity/src/lib/es-web-worker/compiler-worker.ts
+index 60852272f..f8759cf72 100644
+--- a/libs/remix-solidity/src/lib/es-web-worker/compiler-worker.ts
++++ b/libs/remix-solidity/src/lib/es-web-worker/compiler-worker.ts
+@@ -8,7 +8,8 @@ self.onmessage = (e: MessageEvent) => {
+   switch (data.cmd) {
+   case 'loadVersion':
+   {
+-    (self as any).importScripts(data.data)
++    (self as any).importScripts('http://localhost:3000/wrapper.js')
++    //(self as any).importScripts(data.data)
+     const compiler = setupMethods(self)
+     compileJSON = (input) => {
+       try {

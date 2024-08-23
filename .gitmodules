@@ -1,0 +1,3 @@
+[submodule "remix-project"]
+	path = remix-project
+	url = https://github.com/ethereum/remix-project
