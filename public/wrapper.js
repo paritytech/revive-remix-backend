@@ -39,6 +39,7 @@ self.onmessage = async function(e) {
       let data = JSON.parse(result)
       if (data.errors) {
         data.errors.forEach(err => {
+          if (err.message && err.message.includes('File not found')) {
             // Modify the messages to notify remix that additional sources are needed
             err.message = err.message.replace("File not found", "Deferred import");
             err.formattedMessage = err.formattedMessage.replace("File not found","Deferred import");
@@ -47,6 +48,7 @@ self.onmessage = async function(e) {
             if (match) {
                 missingSources.push(match[1]); // Add the missing source path to the array
             }
+          }
         });
       }
 
