@@ -1,5 +1,6 @@
 //! This is the compiler worker executed byt Remix IDE
 //! It proxies requests to the solc proxy server
+let missingSources = [];
 
 // synchronous fetch
 function proxySync(cmd, input) {
@@ -34,10 +35,24 @@ self.onmessage = async function(e) {
   console.log('wrapper.js received message', e.data);
   try {
     if (e.data.cmd === 'compile') {
-      console.log('Sending compile request'); 
-      const data = await proxyAsync('--standard-json', e.data.input)
-      const msg = {...e.data, cmd: 'compiled', timestamp: Date.now(),  data };
-      postMessage(msg);
+      let result = await proxyAsync('--standard-json', e.data.input)
+      let data = JSON.parse(result)
+      if (data.errors) {
+        data.errors.forEach(err => {
+            // Modify the messages to notify remix that additional sources are needed
+            err.message = err.message.replace("File not found", "Deferred import");
+            err.formattedMessage = err.formattedMessage.replace("File not found","Deferred import");
+            // Extract and collect the missing source
+            const match = err.message.match(/Source "(.*?)"/);
+            if (match) {
+                missingSources.push(match[1]); // Add the missing source path to the array
+            }
+        });
+      }
+
+      const msg = {...e.data, cmd: 'compiled', timestamp: Date.now(), data: JSON.stringify(data), missingInputs: missingSources};
+      self.postMessage(msg);
+      missingSources.length = 0;
     }
   } catch (e) {
     console.error('Mesage handling failed', e);
