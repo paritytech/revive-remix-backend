@@ -16,7 +16,7 @@ app.post('/solc', (req, res) => {
     console.log('Received /solc proxy request with body', req.body);
     const {cmd, input} = req.body
 
-    const solc = spawn('solc', [cmd]);
+    const solc = spawn('resolc', [cmd]);
     let stdout = '';
     let stderr = '';
 
