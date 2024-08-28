@@ -2,7 +2,8 @@
 ## Instructions for using with Remix
 
 - Install the `resolc` binary:
-Follow the [installation instructions](https://github.com/xermicus/revive?tab=readme-ov-file#installation)
+
+Follow the [installation instructions](https://github.com/xermicus/revive?tab=readme-ov-file#installation).
 
 - Start Local Remix:
 
