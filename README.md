@@ -64,3 +64,12 @@ Connect Remix to your Metamask wallet:
 
 Navigate to the `Deploy & Run Transactions` section.
 In the `Environment` dropdown menu, select `Injected Provider - MetaMask`.
+
+## Deployment
+
+You can use the provided Dockerfile to build and run the application as a Docker container.
+
+```sh
+docker build --platform=linux/amd64 -t resolc:latest .
+docker run --rm -p 3000:3000 resolc:latest
+```

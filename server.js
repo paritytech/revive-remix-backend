@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const { spawn } = require('child_process');
 const cors = require('cors');
+const compression = require('compression');
 
 const app = express();
 const port = 3000;
@@ -11,6 +12,7 @@ const port = 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use(express.json()); 
+app.use(compression());
 
 app.post('/solc', (req, res) => {
     const {cmd, input} = req.body

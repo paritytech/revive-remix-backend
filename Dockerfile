@@ -20,11 +20,15 @@ RUN chown node:node /usr/local/bin/resolc
 RUN chown node:node /usr/local/bin/solc
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --production
-COPY ./public ./public
-COPY ./server.js .
+RUN npm ci --only=production
+COPY public public
+COPY server.js .
+COPY ecosystem.config.js .
 RUN chown -R node:node /app
 
+RUN npm install pm2 -g
 USER node
+ENV NODE_ENV production
+
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["pm2-runtime", "ecosystem.config.js"]
