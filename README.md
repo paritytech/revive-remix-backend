@@ -59,3 +59,8 @@ Change the compiler configuration to:
   }
 }
 ```
+
+Connect Remix to your Metamask wallet:
+
+Navigate to the `Deploy & Run Transactions` section.
+In the `Environment` dropdown menu, select `Injected Provider - MetaMask`.
