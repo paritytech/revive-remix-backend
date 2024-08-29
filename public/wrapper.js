@@ -51,7 +51,6 @@ self.onmessage = async function(e) {
           }
         });
       }
-
       const msg = {...e.data, cmd: 'compiled', timestamp: Date.now(), data: JSON.stringify(data), missingInputs: missingSources};
       self.postMessage(msg);
       missingSources.length = 0;
@@ -95,7 +94,7 @@ function _solidity_license() {
 
 function _solidity_version() {
   const stdout = proxySync('--version', '');
-  const versionMatch = stdout.match(/Version:\s*([\d.]+)/);
+  const versionMatch = stdout.match(/[v\s]([\d.]+)/);
   return versionMatch[1];
 }
 

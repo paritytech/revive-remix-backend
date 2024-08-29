@@ -13,7 +13,6 @@ app.use(cors());
 app.use(express.json()); 
 
 app.post('/solc', (req, res) => {
-    console.log('Received /solc proxy request with body', req.body);
     const {cmd, input} = req.body
 
     const solc = spawn('resolc', [cmd]);
@@ -35,8 +34,7 @@ app.post('/solc', (req, res) => {
         if (code === 0) {
             res.status(200).send(stdout);
         } else {
-            // Return the stderr output as an error response
-            res.status(500).json({ error: stderr });
+            res.status(200).json({ error: stderr });
         }
     });
 });
