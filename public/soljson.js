@@ -32,7 +32,7 @@ async function proxyAsync(cmd, input) {
 }
 
 self.onmessage = async function(e) {
-  console.log('wrapper.js received message', e.data);
+  console.log('soljson.js received message', e.data);
   try {
     if (e.data.cmd === 'compile') {
       let result = await proxyAsync('--standard-json', e.data.input)
@@ -62,7 +62,7 @@ self.onmessage = async function(e) {
 
 // Noop function, this is invoked by Remix IDE when the worker is loaded
 function cwrap(methodName) {
-  console.log(`wrapper.js cwrap called with ${methodName}`);
+  console.log(`soljson.js cwrap called with ${methodName}`);
   switch (methodName) {
     case 'solidity_compile':
       return _solidity_compile;
@@ -83,7 +83,7 @@ function cwrap(methodName) {
     case 'compileStandard':
       return _compileStandard;
     default:
-      console.log('wrapper.js cwrap called with unknown methodName:', methodName);
+      console.log('soljson.js cwrap called with unknown methodName:', methodName);
       }
 }
 
