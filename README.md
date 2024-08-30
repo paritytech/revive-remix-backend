@@ -30,7 +30,7 @@ pm2 start server.js
 - Configure Remix
 
 In Remix you will need to set the compiler to
-`http://localhost:3000/wrapper.js`
+`http://localhost:3000/soljson.js`
 
 Alternatively, you can patch `remix-project` with
 
