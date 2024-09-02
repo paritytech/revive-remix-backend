@@ -23,8 +23,7 @@ jobs:
         id: version
         run: echo "VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image from master
-        if: ${{ github.event_name == 'push' }}
+      - name: Build and push Docker image from main
         uses: docker/build-push-action@v5
         with:
           context: .
