@@ -10,8 +10,9 @@ function proxySync(cmd, input) {
   request.send(JSON.stringify({cmd, input}));
   if (request.status === 200) {
     return request.responseText;
-  } 
-  throw new Error('fetch failed');
+  }
+
+  throw new Error(request.responseText || `HTTP error! status: ${request.status}`);
 }
 
 // asynchronous fetch
@@ -23,12 +24,13 @@ async function proxyAsync(cmd, input) {
     },
     body: JSON.stringify({cmd, input}),
   })
+  const responseText = await resp.text();
 
   if (!resp.ok) {
-    throw new Error(`HTTP error! status: ${resp.status}`);
+    throw new Error(responseText || `HTTP error! status: ${resp.status}`);
   }
 
-  return await resp.text();
+  return responseText;
 }
 
 self.onmessage = async function(e) {
@@ -55,14 +57,14 @@ self.onmessage = async function(e) {
       self.postMessage(msg);
       missingSources.length = 0;
     }
-  } catch (e) {
-    console.error('Mesage handling failed', e);
+  } catch (ex) {
+    const msg = { ...e.data, cmd: 'compiled', timestamp: Date.now(), data: JSON.stringify({error: ex.message})};
+    self.postMessage(msg);
   }
 }
 
 // Noop function, this is invoked by Remix IDE when the worker is loaded
 function cwrap(methodName) {
-  console.log(`soljson.js cwrap called with ${methodName}`);
   switch (methodName) {
     case 'solidity_compile':
       return _solidity_compile;
@@ -84,7 +86,7 @@ function cwrap(methodName) {
       return _compileStandard;
     default:
       console.log('soljson.js cwrap called with unknown methodName:', methodName);
-      }
+  }
 }
 
 function _solidity_license() {
