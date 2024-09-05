@@ -74,8 +74,7 @@ app.get('/metrics', async (req, res) => {
 app.post('/solc', (req, res) => {
     const end = httpRequestDuration.startTimer();
     const {cmd, input} = req.body
-
-    log('info', 'Received request', { method: req.method, endpoint: req.path });
+    log('info', 'Received request', { method: req.method, endpoint: req.path, command: cmd });
     const solc = spawn('resolc', [cmd], {timeout: 5 * 1000});
     let stdout = '';
     let stderr = '';
@@ -93,26 +92,30 @@ app.post('/solc', (req, res) => {
 
     solc.on('close', (code, signal) => {
         let status = (code === 0) ? 200 : 500;
-        let response = (status === 200) ? stdout : stderr || 'Internal error';
+        let text = (status === 200) ? stdout : stderr || 'Internal error';
 
         if (signal === 'SIGTERM' || signal === 'SIGKILL') {
             status = 504;
-            response = 'Request to compiler timed out';
+            text = 'Request to compiler timed out';
         }
 
-        httpRequestCount.inc({ method: req.method, endpoint: req.path, status });
-        if (status !== 200) {
-            httpRequestErrors.inc({ method: req.method, endpoint: req.path, status });
-            res.status(status).send(response);
-            log('error', 'Request processing failed', { method: req.method, endpoint: req.path, status, error: response });
-        }
-        else {
-            res.status(status).send(response);
-            log('info', 'Request processed successfully', { method: req.method, endpoint: req.path, status });
-        }
-        end({ method: req.method, endpoint: req.path, status });
+        processResponse(req, res, status, text, end)
     });
 });
+
+function processResponse(request, response, status, text, end) {
+    httpRequestCount.inc({ method: request.method, endpoint: request.path, status });
+    if (status !== 200) {
+        httpRequestErrors.inc({ method: request.method, endpoint: request.path, status });
+        response.status(status).send(text);
+        log('error', 'Request processing failed', { method: request.method, endpoint: request.path, status, error: text });
+    }
+    else {
+        response.status(status).send(text);
+        log('info', 'Request processed successfully', { method: request.method, endpoint: request.path, status });
+    }
+    end({ method: request.method, endpoint: request.path, status });
+}
 
 const server = app.listen(port, () => {
     log('info', `solc proxy server listening to ${port}`);
@@ -122,6 +125,6 @@ server.requestTimeout = 5000;
 server.headersTimeout = 2000;
 server.keepAliveTimeout = 3000;
 server.setTimeout(10000, (socket) => {
-  log('warn', 'solc proxy server timeout');
-  socket.destroy();
+    log('warn', 'solc proxy server timeout');
+    socket.destroy();
 });
