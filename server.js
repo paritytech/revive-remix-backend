@@ -6,6 +6,7 @@ const { spawn } = require('child_process');
 const cors = require('cors');
 const compression = require('compression');
 const client = require('prom-client');
+const { body, validationResult } = require('express-validator');
 
 const app = express();
 const port = 3000;
@@ -71,48 +72,83 @@ app.get('/metrics', async (req, res) => {
 	}
 });
 
-app.post('/solc', (req, res) => {
-    const end = httpRequestDuration.startTimer();
-    const {cmd, input} = req.body
-    log('info', 'Received request', { method: req.method, endpoint: req.path, command: cmd });
-    const solc = spawn('resolc', [cmd], {timeout: 5 * 1000});
-    let stdout = '';
-    let stderr = '';
+app.post('/solc',
+    [
+        // Validate cmd
+        body('cmd')
+            .isString()
+            .notEmpty()
+            .custom((value) => {
+                const allowedCommands = ['--standard-json', '--license', '--version'];
+                if (!allowedCommands.includes(value)) {
+                    throw new Error('Invalid compiler command');
+                }
+                return true;
+            }),
 
-    solc.stdout.on('data', (data) => {
-        stdout += data.toString();
-    });
-
-    solc.stderr.on('data', (data) => {
-        stderr += data.toString();
-    });
-
-    solc.stdin.write(input ?? '');
-    solc.stdin.end();
-
-    solc.on('close', (code, signal) => {
-        let status = (code === 0) ? 200 : 500;
-        let text = (status === 200) ? stdout : stderr || 'Internal error';
-
-        if (signal === 'SIGTERM' || signal === 'SIGKILL') {
-            status = 504;
-            text = 'Request to compiler timed out';
+        // Validate input: optional, but if present, must be valid JSON
+        body('input')
+        .optional()
+        .custom((value) => {
+            if (value === '') {
+                return true; // Allow empty string
+            }
+            try {
+                JSON.parse(value); // Check if input is valid JSON
+                return true;
+            } catch (error) {
+                throw new Error('input must be valid JSON');
+            }
+        }),
+    ],
+    (req, res) => {
+        const end = httpRequestDuration.startTimer();
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const text = errors.array().map((err) => err.msg).join(', ');
+            return processResponse(req, res, 400, text, end);
         }
+        const {cmd, input} = req.body
+        log('info', 'Received request', { method: req.method, endpoint: req.path, command: cmd });
+        const solc = spawn('resolc', [cmd], {timeout: 5 * 1000});
+        let stdout = '';
+        let stderr = '';
 
-        processResponse(req, res, status, text, end)
-    });
-});
+        solc.stdout.on('data', (data) => {
+            stdout += data.toString();
+        });
+
+        solc.stderr.on('data', (data) => {
+            stderr += data.toString();
+        });
+
+        solc.stdin.write(input ?? '');
+        solc.stdin.end();
+
+        solc.on('close', (code, signal) => {
+            let status = (code === 0) ? 200 : 500;
+            let text = (status === 200) ? stdout : stderr || 'Internal error';
+
+            if (signal === 'SIGTERM' || signal === 'SIGKILL') {
+                status = 504;
+                text = 'Request to compiler timed out';
+            }
+
+            processResponse(req, res, status, text, end)
+        });
+    }
+);
 
 function processResponse(request, response, status, text, end) {
     httpRequestCount.inc({ method: request.method, endpoint: request.path, status });
     if (status !== 200) {
         httpRequestErrors.inc({ method: request.method, endpoint: request.path, status });
         response.status(status).send(text);
-        log('error', 'Request processing failed', { method: request.method, endpoint: request.path, status, error: text });
+        log('error', 'Request processing failed', { method: request.method, endpoint: request.path, command: request.body.cmd, status, error: text });
     }
     else {
         response.status(status).send(text);
-        log('info', 'Request processed successfully', { method: request.method, endpoint: request.path, status });
+        log('info', 'Request processed successfully', { method: request.method, endpoint: request.path, command: request.body.cmd, status });
     }
     end({ method: request.method, endpoint: request.path, status });
 }
