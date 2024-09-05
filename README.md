@@ -20,13 +20,6 @@ npm install
 node server.js
 ```
 
-or start it in cluster
-
-```sh
-npm install pm2@latest -g
-pm2 start server.js
-```
-
 - Configure Remix
 
 In Remix you will need to set the compiler to
@@ -72,4 +65,11 @@ You can use the provided Dockerfile to build and run the application as a Docker
 ```sh
 docker build --platform=linux/amd64 -t resolc:latest .
 docker run --rm -p 3000:3000 resolc:latest
+```
+
+Alternatively, you can use Kubernetes:
+
+```sh
+kubectl apply -f pod.yaml
+kubectl port-forward pod/sol-rpc-wrapper-pod 3000:3000
 ```

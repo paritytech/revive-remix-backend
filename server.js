@@ -91,16 +91,23 @@ app.post('/solc', (req, res) => {
     solc.stdin.write(input ?? '');
     solc.stdin.end();
 
-    solc.on('close', (code) => {
-        const status = (code === 0) ? 200 : 500;
+    solc.on('close', (code, signal) => {
+        let status = (code === 0) ? 200 : 500;
+        let response = (status === 200) ? stdout : stderr || 'Internal error';
+
+        if (signal === 'SIGTERM' || signal === 'SIGKILL') {
+            status = 504;
+            response = 'Request to compiler timed out';
+        }
+
         httpRequestCount.inc({ method: req.method, endpoint: req.path, status });
         if (status !== 200) {
             httpRequestErrors.inc({ method: req.method, endpoint: req.path, status });
-            res.status(status).send(stderr || 'Internal error');
-            log('error', 'Request processing failed', { method: req.method, endpoint: req.path, status, error: stderr });
+            res.status(status).send(response);
+            log('error', 'Request processing failed', { method: req.method, endpoint: req.path, status, error: response });
         }
         else {
-            res.status(status).send(stdout);
+            res.status(status).send(response);
             log('info', 'Request processed successfully', { method: req.method, endpoint: req.path, status });
         }
         end({ method: req.method, endpoint: req.path, status });

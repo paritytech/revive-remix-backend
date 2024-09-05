@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sol-rpc-wrapper-pod
+  labels:
+    team: smart-contracts
+spec:
+  containers:
+  - name: sol-rpc-wrapper
+    image: resolcuser/sol-rpc-wrapper:1.0.1
+    ports:
+    - containerPort: 3000
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "500Mi"
+      limits:
+        cpu: "1"
+        memory: "4Gi"

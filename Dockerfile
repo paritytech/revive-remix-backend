@@ -23,12 +23,10 @@ COPY package*.json ./
 RUN npm ci --only=production
 COPY public public
 COPY server.js .
-COPY ecosystem.config.js .
 RUN chown -R node:node /app
 
-RUN npm install pm2 -g
 USER node
 ENV NODE_ENV production
 
 EXPOSE 3000
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["npm", "start"]
