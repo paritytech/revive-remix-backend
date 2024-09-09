@@ -5,13 +5,16 @@ let missingSources = [];
 // synchronous fetch
 function proxySync(cmd, input) {
   const request = new XMLHttpRequest();
-  request.open("POST", "http://localhost:3000/solc", false);
-  request.setRequestHeader("Content-Type", "application/json");
-  request.send(JSON.stringify({cmd, input}));
+  request.open('POST', 'http://localhost:3000/solc', false);
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.send(JSON.stringify({ cmd, input }));
   if (request.status === 200) {
     return request.responseText;
-  } 
-  throw new Error('fetch failed');
+  }
+
+  throw new Error(
+    request.responseText || `HTTP error! status: ${request.status}`,
+  );
 }
 
 // asynchronous fetch
@@ -21,48 +24,66 @@ async function proxyAsync(cmd, input) {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({cmd, input}),
-  })
+    body: JSON.stringify({ cmd, input }),
+  });
+  const responseText = await resp.text();
 
   if (!resp.ok) {
-    throw new Error(`HTTP error! status: ${resp.status}`);
+    throw new Error(responseText || `HTTP error! status: ${resp.status}`);
   }
 
-  return await resp.text();
+  return responseText;
 }
 
-self.onmessage = async function(e) {
+self.onmessage = async function (e) {
   console.log('soljson.js received message', e.data);
   try {
     if (e.data.cmd === 'compile') {
-      let result = await proxyAsync('--standard-json', e.data.input)
-      let data = JSON.parse(result)
+      let result = await proxyAsync('--standard-json', e.data.input);
+      let data = JSON.parse(result);
       if (data.errors) {
-        data.errors.forEach(err => {
+        data.errors.forEach((err) => {
           if (err.message && err.message.includes('File not found')) {
             // Modify the messages to notify remix that additional sources are needed
-            err.message = err.message.replace("File not found", "Deferred import");
-            err.formattedMessage = err.formattedMessage.replace("File not found","Deferred import");
+            err.message = err.message.replace(
+              'File not found',
+              'Deferred import',
+            );
+            err.formattedMessage = err.formattedMessage.replace(
+              'File not found',
+              'Deferred import',
+            );
             // Extract and collect the missing source
             const match = err.message.match(/Source "(.*?)"/);
             if (match) {
-                missingSources.push(match[1]); // Add the missing source path to the array
+              missingSources.push(match[1]); // Add the missing source path to the array
             }
           }
         });
       }
-      const msg = {...e.data, cmd: 'compiled', timestamp: Date.now(), data: JSON.stringify(data), missingInputs: missingSources};
+      const msg = {
+        ...e.data,
+        cmd: 'compiled',
+        timestamp: Date.now(),
+        data: JSON.stringify(data),
+        missingInputs: missingSources,
+      };
       self.postMessage(msg);
       missingSources.length = 0;
     }
-  } catch (e) {
-    console.error('Mesage handling failed', e);
+  } catch (ex) {
+    const msg = {
+      ...e.data,
+      cmd: 'compiled',
+      timestamp: Date.now(),
+      data: JSON.stringify({ error: ex.message }),
+    };
+    self.postMessage(msg);
   }
-}
+};
 
 // Noop function, this is invoked by Remix IDE when the worker is loaded
 function cwrap(methodName) {
-  console.log(`soljson.js cwrap called with ${methodName}`);
   switch (methodName) {
     case 'solidity_compile':
       return _solidity_compile;
@@ -83,8 +104,11 @@ function cwrap(methodName) {
     case 'compileStandard':
       return _compileStandard;
     default:
-      console.log('soljson.js cwrap called with unknown methodName:', methodName);
-      }
+      console.log(
+        'soljson.js cwrap called with unknown methodName:',
+        methodName,
+      );
+  }
 }
 
 function _solidity_license() {
@@ -99,20 +123,20 @@ function _solidity_version() {
 }
 
 function _solidity_alloc() {
-  console.log('TODO solidity_alloc called with args', arguments)
+  console.log('TODO solidity_alloc called with args', arguments);
 }
 function _solidity_reset() {
-  console.log('TODO solidity_reset called with args', arguments)
+  console.log('TODO solidity_reset called with args', arguments);
 }
 function _compileJSON() {
-  console.log('TODO compileJSON called with args', arguments)
+  console.log('TODO compileJSON called with args', arguments);
 }
 function _compileJSONMulti() {
-  console.log('TODO compileJSONMulti called with args', arguments)
+  console.log('TODO compileJSONMulti called with args', arguments);
 }
 function _compileJSONCallback() {
-  console.log('TODO compileJSONCallback called with args', arguments)
+  console.log('TODO compileJSONCallback called with args', arguments);
 }
 function _compileStandard() {
-  console.log('TODO compileStandard called with args', arguments)
+  console.log('TODO compileStandard called with args', arguments);
 }
