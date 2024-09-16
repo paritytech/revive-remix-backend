@@ -118,7 +118,7 @@ app.post(
       endpoint: req.path,
       command: cmd,
     });
-    const solc = spawn('resolc', [cmd], { timeout: 5 * 1000 });
+    const solc = spawn('resolc', [cmd], { timeout: 10 * 1000 });
     let stdout = '';
     let stderr = '';
 
@@ -163,7 +163,7 @@ function processResponse(request, response, status, text, end) {
     log('error', 'Request processing failed', {
       method: request.method,
       endpoint: request.path,
-      command: request.body.cmd,
+      command: request.body.cmd || "unknown",
       status,
       error: text,
     });
@@ -186,7 +186,3 @@ const server = app.listen(port, () => {
 server.requestTimeout = 5000;
 server.headersTimeout = 2000;
 server.keepAliveTimeout = 3000;
-server.setTimeout(10000, (socket) => {
-  log('warn', 'solc proxy server timeout');
-  socket.destroy();
-});

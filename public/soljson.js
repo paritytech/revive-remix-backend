@@ -1,11 +1,12 @@
 //! This is the compiler worker executed byt Remix IDE
 //! It proxies requests to the solc proxy server
 let missingSources = [];
+let compilerBackend='http://localhost:3000/solc'
 
 // synchronous fetch
 function proxySync(cmd, input) {
   const request = new XMLHttpRequest();
-  request.open('POST', 'http://localhost:3000/solc', false);
+  request.open('POST', compilerBackend, false);
   request.setRequestHeader('Content-Type', 'application/json');
   request.send(JSON.stringify({ cmd, input }));
   if (request.status === 200) {
@@ -19,7 +20,7 @@ function proxySync(cmd, input) {
 
 // asynchronous fetch
 async function proxyAsync(cmd, input) {
-  const resp = await fetch('http://localhost:3000/solc', {
+  const resp = await fetch(compilerBackend, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
