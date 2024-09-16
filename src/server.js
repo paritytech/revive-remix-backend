@@ -251,11 +251,15 @@ function handleResult(request, response, end, result) {
   }
 }
 
-const server = app.listen(port, () => {
-  log('info', `solc proxy server listening to ${port}`);
-  log('info', `Set number of workers to ${numCPUs}`);
-});
+if (require.main === module) {
+  const server = app.listen(port, () => {
+    log('info', `solc proxy server listening to ${port}`);
+    log('info', `Set number of workers to ${numCPUs}`);
+  });
+  server.requestTimeout = 5000;
+  server.headersTimeout = 2000;
+  server.keepAliveTimeout = 3000;
+}
 
-server.requestTimeout = 5000;
-server.headersTimeout = 2000;
-server.keepAliveTimeout = 3000;
+// Expose the app for testing
+module.exports = app;

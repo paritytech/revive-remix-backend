@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "node src/server.js",
     "format": "prettier --write \"**/*.js\"",
     "load-test": "artillery run artillery.yml"
@@ -22,6 +22,8 @@
   },
   "devDependencies": {
     "artillery": "^1.7.4",
-    "prettier": "^3.3.3"
+    "mocha": "^10.7.3",
+    "prettier": "^3.3.3",
+    "supertest": "^7.0.0"
   }
 }
