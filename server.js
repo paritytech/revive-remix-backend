@@ -7,9 +7,38 @@ const cors = require('cors');
 const compression = require('compression');
 const client = require('prom-client');
 const { body, validationResult } = require('express-validator');
+const async = require('async');
+const os = require('os');
+const { getErrorMessage } = require('./errorHandler');
 
 const app = express();
 const port = 3000;
+
+// Logger function for JSON format
+const log = (level, message, meta = {}) => {
+  const logEntry = {
+    level,
+    message,
+    ...meta,
+    timestamp: new Date().toISOString(),
+  };
+  console.log(JSON.stringify(logEntry));
+};
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+  log('info', 'soljson.js endpoint enabled');
+}
+
+app.use(cors());
+app.use(express.json());
+app.use(compression());
+
+app.use((req, res, next) => {
+  // Set Connection: close header
+  res.setHeader('Connection', 'close');
+  next();
+});
 
 // Prometheus metrics
 const register = new client.Registry();
@@ -40,27 +69,48 @@ const httpRequestDuration = new client.Histogram({
 });
 register.registerMetric(httpRequestDuration);
 
-// Logger function for JSON format
-const log = (level, message, meta = {}) => {
-  const logEntry = {
-    level,
-    message,
-    ...meta,
-    timestamp: new Date().toISOString(),
-  };
-  console.log(JSON.stringify(logEntry));
-};
+// Get the number of CPUs
+const numCPUs = os.cpus().length;
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
-app.use(express.json());
-app.use(compression());
+// Create an async queue that processes up to 2 tasks at a time
+const queue = async.queue((task, done) => {
+  const { cmd, input } = task;
+  const solc = spawn('resolc', [cmd], { timeout: 10 * 1000 });
+  let stdout = '';
+  let stderr = '';
 
-app.use((req, res, next) => {
-  // Set Connection: close header
-  res.setHeader('Connection', 'close');
-  next();
-});
+  solc.stdout.on('data', (data) => {
+    stdout += data.toString();
+  });
+
+  solc.stderr.on('data', (data) => {
+    stderr += data.toString();
+  });
+
+  if (input) {
+    solc.stdin.write(input);
+  }
+  solc.stdin.end();
+
+  solc.on('close', (code, signal) => {
+    if (code === 0) {
+      return done(null, stdout);
+    }
+    let error;
+    switch (signal) {
+      case 'SIGTERM':
+        error = 'Request terminated. Compilation timed out';
+        break;
+      case 'SIGKILL':
+        error = 'Out of resources';
+        break;
+      default:
+        error = stderr || 'Internal error';
+    }
+
+    return done(new Error(error));
+  });
+}, numCPUs); // Limit concurrency to number of CPUs
 
 // Metrics endpoint
 app.get('/metrics', async (req, res) => {
@@ -68,7 +118,7 @@ app.get('/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
   } catch (ex) {
-    res.status(500).end(ex);
+    res.status(500).end(ex.message);
   }
 });
 
@@ -104,83 +154,106 @@ app.post(
   ],
   (req, res) => {
     const end = httpRequestDuration.startTimer();
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const text = errors
-        .array()
-        .map((err) => err.msg)
-        .join(', ');
-      return processResponse(req, res, 400, text, end);
-    }
-    const { cmd, input } = req.body;
     log('info', 'Received request', {
       method: req.method,
       endpoint: req.path,
-      command: cmd,
+      command: req.body.cmd || 'unknown',
     });
-    const solc = spawn('resolc', [cmd], { timeout: 10 * 1000 });
-    let stdout = '';
-    let stderr = '';
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const message = errors
+        .array()
+        .map((err) => err.msg)
+        .join(', ');
+      return handleError(req, res, end, 400, message);
+    }
 
-    solc.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    solc.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    solc.stdin.write(input ?? '');
-    solc.stdin.end();
-
-    solc.on('close', (code, signal) => {
-      let status = code === 0 ? 200 : 500;
-      let text = status === 200 ? stdout : stderr || 'Internal error';
-
-      if (signal === 'SIGTERM' || signal === 'SIGKILL') {
-        status = 504;
-        text = 'Request to compiler timed out';
+    // Check if the queue is overloaded
+    if (queue.length() >= numCPUs) {
+      return handleError(req, res, end, 429);
+    }
+    // Push the task to the queue
+    queue.push(req.body, (err, result) => {
+      if (err) {
+        return handleError(req, res, end, 500, err.message);
       }
-
-      processResponse(req, res, status, text, end);
+      handleResult(req, res, end, result);
     });
   },
 );
 
-function processResponse(request, response, status, text, end) {
+function handleError(request, response, end, status, error = null) {
   httpRequestCount.inc({
     method: request.method,
     endpoint: request.path,
     status,
   });
-  if (status !== 200) {
+  httpRequestErrors.inc({
+    method: request.method,
+    endpoint: request.path,
+    status,
+  });
+
+  log('error', 'Request processing failed', {
+    method: request.method,
+    endpoint: request.path,
+    command: request.body.cmd || 'unknown',
+    status,
+    error: error || getErrorMessage(status),
+  });
+
+  try {
+    response.status(status).send(getErrorMessage(status));
+  } catch (sendError) {
+    // Log the sending failure
+    log('error', 'Failed to send error response', {
+      method: request.method,
+      endpoint: request.path,
+      status,
+      error: sendError.message,
+    });
+  } finally {
+    end({ method: request.method, endpoint: request.path, status });
+  }
+}
+
+function handleResult(request, response, end, result) {
+  const status = 200;
+  httpRequestCount.inc({
+    method: request.method,
+    endpoint: request.path,
+    status,
+  });
+  log('info', 'Request processed successfully', {
+    method: request.method,
+    endpoint: request.path,
+    command: request.body.cmd,
+    status,
+  });
+
+  try {
+    response.status(status).send(result);
+  } catch (sendError) {
+    // Log the sending failure
+    log('error', 'Failed to send error response', {
+      method: request.method,
+      endpoint: request.path,
+      status,
+      error: sendError.message,
+    });
     httpRequestErrors.inc({
       method: request.method,
       endpoint: request.path,
       status,
     });
-    response.status(status).send(text);
-    log('error', 'Request processing failed', {
-      method: request.method,
-      endpoint: request.path,
-      command: request.body.cmd || "unknown",
-      status,
-      error: text,
-    });
-  } else {
-    response.status(status).send(text);
-    log('info', 'Request processed successfully', {
-      method: request.method,
-      endpoint: request.path,
-      command: request.body.cmd,
-      status,
-    });
+  } finally {
+    end({ method: request.method, endpoint: request.path, status });
   }
-  end({ method: request.method, endpoint: request.path, status });
 }
 
 const server = app.listen(port, () => {
   log('info', `solc proxy server listening to ${port}`);
+  log('info', `Set number of workers to ${numCPUs}`);
 });
 
 server.requestTimeout = 5000;

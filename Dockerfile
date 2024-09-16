@@ -21,7 +21,7 @@ RUN chown node:node /usr/local/bin/solc
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
-COPY public public
+COPY errorHandler.js .
 COPY server.js .
 RUN chown -R node:node /app
 
