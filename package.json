@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "artillery": "^1.7.4",
+    "chai": "^5.1.1",
     "mocha": "^10.7.3",
     "prettier": "^3.3.3",
     "supertest": "^7.0.0"
