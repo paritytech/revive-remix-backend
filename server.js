@@ -72,7 +72,7 @@ register.registerMetric(httpRequestDuration);
 // Get the number of CPUs
 const numCPUs = os.cpus().length;
 
-// Create an async queue that processes up to 2 tasks at a time
+// Create an async queue that processes compilation tasks
 const queue = async.queue((task, done) => {
   const { cmd, input } = task;
   const solc = spawn('resolc', [cmd], { timeout: 10 * 1000 });
