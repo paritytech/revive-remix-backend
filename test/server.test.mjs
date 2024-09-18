@@ -138,8 +138,7 @@ describe('Express Server', function () {
       .end((err, res) => {
         if (err) return done(err);
 
-        // Assert status is 200 OK
-        expect(res.status).to.equal(400);
+        expect(res.status).to.equal(200);
         // Check that the response contains the compiled contract
         const response = JSON.parse(res.text);
         expect(response).to.have.property('errors');
