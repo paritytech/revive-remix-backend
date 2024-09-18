@@ -37,3 +37,4 @@ jobs:
           
       - name: Test
         run: npm test
+        timeout-minutes: 5
