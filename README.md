@@ -63,13 +63,13 @@ In the `Environment` dropdown menu, select `Injected Provider - MetaMask`.
 You can use the provided Dockerfile to build and run the application as a Docker container.
 
 ```sh
-docker build --platform=linux/amd64 -t resolc:latest .
-docker run --rm -p 3000:3000 resolc:latest
+docker build --platform=linux/amd64 -t paritytech/revive-remix-backend:latest .
+docker run --rm -p 3000:3000 paritytech/revive-remix-backend:latest
 ```
 
 Alternatively, you can use Kubernetes:
 
 ```sh
 kubectl apply -f pod.yaml
-kubectl port-forward pod/sol-rpc-wrapper-pod 3000:3000
+kubectl port-forward pod/revive-remix-backend-pod 3000:3000
 ```

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { expect } from 'chai';
-import app from '../src/server.js';
+import app from '../server.js';
 
 describe('Express Server', function () {
   it('should return 200 on /metrics endpoint', function (done) {

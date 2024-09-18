@@ -2,7 +2,7 @@ name: release-image
 on:
   workflow_dispatch:
 env:
-  IMAGE_NAME: resolcuser/sol-rpc-wrapper
+  IMAGE_NAME: paritytech/revive-remix-backend
 
 jobs:
   push_to_registry:

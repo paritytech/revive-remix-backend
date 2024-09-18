@@ -9,7 +9,7 @@ const client = require('prom-client');
 const { body, validationResult } = require('express-validator');
 const async = require('async');
 const os = require('os');
-const { getErrorMessage } = require('./errorHandler');
+const { getErrorMessage } = require('./utils/errorHandler');
 
 const app = express();
 const port = 3000;
