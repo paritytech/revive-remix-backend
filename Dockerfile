@@ -22,6 +22,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY utils/ ./utils
+COPY config/ ./config
 COPY server.js ./
 RUN chown -R node:node /app
 
