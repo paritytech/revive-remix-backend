@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: revive-remix-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: revive-remix-backend
+  template:
+    metadata:
+      labels:
+        app: revive-remix-backend
+    spec:
+      containers:
+      - name: revive-remix-backend
+        image: paritytech/revive-remix-backend:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: web
+          containerPort: 3000
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1Gi"
+          limits:
+            cpu: "16"
+            memory: "16Gi"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: revive-remix-backend
+  labels:
+    app: revive-remix-backend
+spec:
+  selector:
+    app: revive-remix-backend 
+  ports:
+  - name: web
+    port: 3000
+  type: LoadBalancer
