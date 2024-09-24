@@ -10,9 +10,9 @@ const { body, validationResult } = require('express-validator');
 const async = require('async');
 const os = require('os');
 const { getErrorMessage } = require('./utils/errorHandler');
+const config = require('./config/config');
 
 const app = express();
-const port = 3000;
 
 // Logger function for JSON format
 const log = (level, message, meta = {}) => {
@@ -86,7 +86,9 @@ const numCPUs = os.cpus().length;
 // Create an async queue that processes compilation tasks
 const queue = async.queue((task, done) => {
   const { cmd, input } = task;
-  const solc = spawn('resolc', [cmd], { timeout: 10 * 1000 });
+  const solc = spawn('resolc', [cmd], {
+    timeout: config.server.compilationTimeout,
+  });
   let stdout = '';
   let stderr = '';
 
@@ -269,8 +271,8 @@ function handleResult(request, response, end, result) {
 }
 
 if (require.main === module) {
-  const server = app.listen(port, () => {
-    log('info', `solc proxy server listening to ${port}`);
+  const server = app.listen(config.server.port, () => {
+    log('info', `solc proxy server listening to ${config.server.port}`);
     log('info', `Set number of workers to ${numCPUs}`);
   });
   server.requestTimeout = 5000;

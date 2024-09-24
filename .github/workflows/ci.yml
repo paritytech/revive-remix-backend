@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Install solc
+        run: |
+          mkdir -p solc
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux \
+            -O solc/solc && chmod +x solc/solc
+          echo "$(pwd)/solc/" >> $GITHUB_PATH
+      
+      - name: Install resolc
+        run: |
+          mkdir -p resolc
+          wget https://github.com/smiasojed/revive/releases/download/0.0.1/resolc \
+            -O resolc/resolc && chmod +x resolc/resolc
+          echo "$(pwd)/resolc/" >> $GITHUB_PATH
+          
+      - name: Test
+        run: npm test
+        timeout-minutes: 5
