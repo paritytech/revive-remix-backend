@@ -5,8 +5,8 @@ and enable horizontal scaling based on a custom Prometheus metric.
 
 ### Install Minikube and Helm
 
-[Install Minikube](https://minikube.sigs.k8s.io/docs/start/)
-[Install helm](https://helm.sh/docs/intro/install/)
+Install [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+Install [Helm](https://helm.sh/docs/intro/install/)
 
 ### Set up Minikube cluster
 
