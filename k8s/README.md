@@ -34,7 +34,6 @@ helm install prometheus-adapter prometheus-community/prometheus-adapter --namesp
 ```sh
 eval $(minikube docker-env)
 docker build --platform=linux/amd64 -t paritytech/revive-remix-backend:1.0.0 .
-
 ```
 
 ### Deploy your application and configure monitoring
@@ -54,7 +53,6 @@ kubectl apply -f adapter-metrics.yaml
 
 # Apply the scaling rules
 kubectl apply -f hpa.yaml
-
 ```
 
 ### Manage Networking and Access

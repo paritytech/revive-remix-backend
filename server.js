@@ -188,7 +188,6 @@ app.post(
     if (queue.length() >= numCPUs * 4) {
       return handleError(req, res, end, 429);
     }
-
     // Push the task to the queue
     queue.push(req.body, (err, result) => {
       if (err) {
