@@ -3,13 +3,12 @@ import { expect } from 'chai';
 import app from '../server.js';
 import config from '../config/config.js';
 
-//Compiler input
 const compilerInput = {
   language: 'Solidity',
   sources: {
     'MyContract.sol': {
       content: `
-        // SPDX-License-Identifier: GPL-3.0
+        // SPDX-License-Identifier: UNLICENSED
         pragma solidity ^0.8.0; 
         contract MyContract { 
           function greet() public pure returns (string memory) { 
@@ -32,7 +31,7 @@ const compilerInput = {
   },
 };
 
-describe('Express Server', function () {
+describe('Revive Remix Backend tests', function () {
   describe('Shorter compilation timeout', () => {
     const originalCompilationTimeout = config.server.compilationTimeout;
 
@@ -61,8 +60,6 @@ describe('Express Server', function () {
           done();
         });
     });
-
-    // Add more tests with the shorter timeout here
   });
 
   it('should return 200 on /metrics endpoint', function (done) {
@@ -113,7 +110,7 @@ describe('Express Server', function () {
       sources: {
         'MyContract.sol': {
           content: `
-            // SPDX-License-Identifier: GPL-3.0
+            // SPDX-License-Identifier: UNLICENSED
             pragma solidity ^0.8.0; 
             import "hardhat/console.sol";
             contract MyContract { 
