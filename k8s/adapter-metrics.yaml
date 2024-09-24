@@ -5,12 +5,12 @@ metadata:
 data:
   config.yaml: |
     rules:
-      - seriesQuery: '{__name__="http_request_errors_total", namespace!="",pod!="", status="429"}'
+      - seriesQuery: '{__name__="requests_queue_length", namespace!="",pod!=""}'
         resources:
           overrides:
             namespace: {resource: "namespace"}
             pod: {resource: "pod"}
         name:
-          matches: "^(.*)_total"
-          as: "${1}_busy_rate"
-        metricsQuery: 'sum(rate(<<.Series>>{<<.LabelMatchers>>}[15s])) by (<<.GroupBy>>)'
+          matches: "^(.*)_length"
+          as: "${1}_avg_length"
+        metricsQuery: 'avg(<<.Series>>{<<.LabelMatchers>>}) by (<<.GroupBy>>)'

@@ -8,13 +8,13 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: revive-remix-backend 
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 10
   metrics:
   - type: Pods
     pods:
       metric:
-        name: http_request_errors_busy_rate  # Metric name configured in the Prometheus Adapter
+        name: requests_queue_avg_length  # Metric name configured in the Prometheus Adapter
       target:
         type: AverageValue
-        averageValue: "100m"  # Scaling threshold
+        averageValue: "12"  # Scaling threshold

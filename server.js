@@ -44,6 +44,17 @@ app.use((req, res, next) => {
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
+// Queue length
+const requestsQueueLength = new client.Gauge({
+  name: 'requests_queue_length',
+  help: 'Current number of requests in the queue',
+  collect() {
+    // This function is called every time Prometheus scrapes the metrics
+    this.set(queue.length());
+  },
+});
+register.registerMetric(requestsQueueLength);
+
 // Traffic metric (Request count)
 const httpRequestCount = new client.Counter({
   name: 'http_requests_total',
@@ -118,6 +129,11 @@ app.get('/metrics', async (req, res) => {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
   } catch (ex) {
+    log('error', 'Failed to get metrics', {
+      method: request.method,
+      endpoint: request.path,
+      error: ex.message,
+    });
     res.status(500).end(ex.message);
   }
 });
@@ -169,9 +185,10 @@ app.post(
     }
 
     // Check if the queue is overloaded
-    if (queue.length() >= numCPUs) {
+    if (queue.length() >= numCPUs * 4) {
       return handleError(req, res, end, 429);
     }
+
     // Push the task to the queue
     queue.push(req.body, (err, result) => {
       if (err) {
