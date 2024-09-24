@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
-// Queue length
+// Queue length metric
 const requestsQueueLength = new client.Gauge({
   name: 'requests_queue_length',
   help: 'Current number of requests in the queue',
