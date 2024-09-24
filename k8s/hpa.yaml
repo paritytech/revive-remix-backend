@@ -17,4 +17,4 @@ spec:
         name: requests_queue_avg_length  # Metric name configured in the Prometheus Adapter
       target:
         type: AverageValue
-        averageValue: "12"  # Scaling threshold
+        averageValue: "8"  # Scaling threshold

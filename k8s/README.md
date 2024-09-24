@@ -5,6 +5,9 @@ and enable horizontal scaling based on a custom Prometheus metric.
 
 ### Install Minikube and Helm
 
+[Install Minikube](https://minikube.sigs.k8s.io/docs/start/)
+[Install helm](https://helm.sh/docs/intro/install/)
+
 ### Set up Minikube cluster
 
 Initialize your local Kubernetes cluster with Minikube and install the Prometheus monitoring stack:
@@ -49,6 +52,7 @@ kubectl apply -f service-monitor.yaml
 # Apply the metrics configuration for the Prometheus Adapter
 kubectl apply -f adapter-metrics.yaml
 
+# Apply the scaling rules
 kubectl apply -f hpa.yaml
 
 ```
