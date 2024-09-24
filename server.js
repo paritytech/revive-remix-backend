@@ -184,7 +184,8 @@ app.post(
       return handleError(req, res, end, 400, message);
     }
 
-    // Check if the queue is overloaded
+    // Check if the queue is overloaded. The maximum delay for processing is 20 seconds,
+    // after which requests are dropped.
     if (queue.length() >= numCPUs * 4) {
       return handleError(req, res, end, 429);
     }
