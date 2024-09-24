@@ -1,1 +1,14 @@
-src/public
+.git
+.github
+.gitignore
+.gitmodules
+.prettierrc
+artillery.yml
+Dockerfile
+pod.yaml
+README.md
+remix-project.patch
+node_modules
+remix-project
+public
+test
