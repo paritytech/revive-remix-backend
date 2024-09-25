@@ -5,10 +5,10 @@
 .prettierrc
 artillery.yml
 Dockerfile
-pod.yaml
 README.md
 remix-project.patch
 node_modules
 remix-project
+k8s
 public
 test

@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: revive-remix-backend
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: revive-remix-backend
+  endpoints:
+  - port: web
+    interval: 5s
