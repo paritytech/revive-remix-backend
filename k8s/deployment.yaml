@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: revive-remix-backend
-        image: paritytech/revive-remix-backend:1.0.0
+        image: paritytech/revive-remix-backend:1.1.0
         imagePullPolicy: IfNotPresent
         ports:
         - name: web

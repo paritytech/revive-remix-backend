@@ -70,6 +70,7 @@ docker run --rm -p 3000:3000 paritytech/revive-remix-backend:latest
 Alternatively, you can use Kubernetes:
 
 ```sh
+cd k8s
 kubectl apply -f pod.yaml
 kubectl port-forward pod/revive-remix-backend-pod 3000:3000
 ```
