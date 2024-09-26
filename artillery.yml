@@ -1,8 +1,13 @@
 config:
-  target: "http://localhost:3000"
+  # Staging environment
+  # target: "https://remix-backend.parity-stg.parity.io"
+  target: "http://127.0.0.1:3000"
+  http:
+    extendedMetrics: true
+    timeout: 60
   phases:
-    - duration: 60
-      arrivalRate: 40
+    - duration: 120
+      arrivalRate: 100
   defaults:
     headers:
       content-type: "application/json"

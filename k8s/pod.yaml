@@ -17,3 +17,9 @@ spec:
       limits:
         cpu: "12"
         memory: "12Gi"
+    env:
+    - name: CPU_REQUEST
+      valueFrom:
+        resourceFieldRef:
+          containerName: revive-remix-backend
+          resource: requests.cpu
