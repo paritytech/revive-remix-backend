@@ -10,6 +10,7 @@ const { body, validationResult } = require('express-validator');
 const async = require('async');
 const os = require('os');
 const { getErrorMessage } = require('./utils/errorHandler');
+const { getCPUsNumber } = require('./utils/cpusNumber');
 const config = require('./config/config');
 
 const app = express();
@@ -25,11 +26,6 @@ const log = (level, message, meta = {}) => {
   console.log(JSON.stringify(logEntry));
 };
 
-if (process.env.NODE_ENV !== 'production') {
-  app.use(express.static(path.join(__dirname, 'public')));
-  log('info', 'soljson.js endpoint enabled');
-}
-
 app.use(cors());
 app.use(express.json());
 app.use(compression());
@@ -39,6 +35,11 @@ app.use((req, res, next) => {
   res.setHeader('Connection', 'close');
   next();
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+  log('info', 'soljson.js endpoint enabled');
+}
 
 // Prometheus metrics
 const register = new client.Registry();
@@ -80,8 +81,8 @@ const httpRequestDuration = new client.Histogram({
 });
 register.registerMetric(httpRequestDuration);
 
-// Get the number of CPUs
-const numCPUs = os.cpus().length;
+// Determine the number of CPUs to use
+const numCPUs = getCPUsNumber();
 
 // Create an async queue that processes compilation tasks
 const queue = async.queue((task, done) => {
