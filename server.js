@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const compression = require('compression');
 const config = require('./config/config');
+const solcRouter = require('./routes/solc');
 const resolcRouter = require('./routes/resolc');
 const metricsRouter = require('./routes/metrics');
 const log = require('./middleware/logger');
@@ -27,7 +28,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.use('/metrics', metricsRouter);
-app.use('/solc', resolcRouter);
+app.use('/solc', solcRouter);
+app.use('/resolc', resolcRouter);
 
 if (require.main === module) {
   const server = app.listen(config.server.port, () => {

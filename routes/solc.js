@@ -6,19 +6,19 @@ const config = require('../config/config');
 const log = require('../middleware/logger');
 const { httpRequestDuration } = require('../utils/metrics');
 const TaskQueue = require('../utils/taskQueue');
-const { validateResolcInput } = require('../middleware/validation');
+const { validateSolcInput } = require('../middleware/validation');
 
-router.post('/', validateResolcInput, (req, res) => {
+router.post('/', validateSolcInput, (req, res) => {
   const end = httpRequestDuration.startTimer();
   log('info', 'Received request', {
     method: req.method,
     endpoint: req.path,
     command: req.body.cmd || 'unknown',
   });
-// Check if the queue is overloaded.
-if (TaskQueue.isOverloaded()) {
+  // Check if the queue is overloaded.
+  if (TaskQueue.isOverloaded()) {
     return handleError(req, res, end, 429);
-    }
+  }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const message = errors
@@ -30,7 +30,7 @@ if (TaskQueue.isOverloaded()) {
 
   // Push the task to the queue
   TaskQueue.addTask(
-    { bin: 'resolc', ...req.body },
+    { bin: 'solc', ...req.body },
     (err, result) => {
       if (err) {
         return handleError(req, res, end, 500, err.message);

@@ -1,14 +1,12 @@
 const { body } = require('express-validator');
 
-const allowedCommands = ['--standard-json', '--license', '--version'];
-
-const validateInput = [
+const validateResolcInput = [
   // Validate cmd
   body('cmd')
     .isString()
     .notEmpty()
     .custom((value) => {
-      if (!allowedCommands.includes(value)) {
+      if (!['--standard-json', '--license', '--version'].includes(value)) {
         throw new Error('Invalid compiler command');
       }
       return true;
@@ -30,6 +28,20 @@ const validateInput = [
     }),
 ];
 
+const validateSolcInput = [
+    // Validate cmd
+    body('cmd')
+      .isString()
+      .notEmpty()
+      .custom((value) => {
+        if (value != '--version') {
+          throw new Error('Invalid compiler command');
+        }
+        return true;
+      }),
+  ];
+
 module.exports = {
-  validateInput,
+  validateResolcInput,
+  validateSolcInput
 };
