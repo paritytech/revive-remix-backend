@@ -1,4 +1,4 @@
-const { httpRequestCount, httpRequestErrors} = require('../utils/metrics');
+const { httpRequestCount, httpRequestErrors } = require('../utils/metrics');
 const log = require('./logger');
 
 // Error messages mapping
@@ -85,5 +85,5 @@ function handleResult(request, response, end, result) {
 // Export the function so it can be used in other files
 module.exports = {
   handleError,
-  handleResult
+  handleResult,
 };

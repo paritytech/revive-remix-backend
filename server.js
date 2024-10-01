@@ -26,7 +26,6 @@ if (process.env.NODE_ENV !== 'production') {
   log('info', 'soljson.js endpoint enabled');
 }
 
-
 app.use('/metrics', metricsRouter);
 app.use('/solc', resolcRouter);
 

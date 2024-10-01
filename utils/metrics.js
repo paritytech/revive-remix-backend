@@ -35,8 +35,8 @@ const httpRequestDuration = new client.Histogram({
 });
 
 module.exports = {
-    requestsQueueLength,
-    httpRequestCount,
-    httpRequestErrors,
-    httpRequestDuration
+  requestsQueueLength,
+  httpRequestCount,
+  httpRequestErrors,
+  httpRequestDuration,
 };

@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const client = require('prom-client');
 const log = require('../middleware/logger');
-const { requestsQueueLength, httpRequestCount, httpRequestErrors, httpRequestDuration} = require('../utils/metrics');
+const {
+  requestsQueueLength,
+  httpRequestCount,
+  httpRequestErrors,
+  httpRequestDuration,
+} = require('../utils/metrics');
 
 // Prometheus metrics
 const register = new client.Registry();
