@@ -23,6 +23,8 @@ COPY package*.json ./
 RUN npm ci --only=production
 COPY utils/ ./utils
 COPY config/ ./config
+COPY middleware/ ./middleware
+COPY routes/ ./routes
 COPY server.js ./
 RUN chown -R node:node /app
 
