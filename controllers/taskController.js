@@ -28,15 +28,12 @@ const processTask = (binName) => (req, res) => {
   }
 
   // Push the task to the queue
-  TaskQueue.addTask(
-    { bin: binName, ...req.body },
-    (err, result) => {
-      if (err) {
-        return handleError(req, res, end, 500, err.message);
-      }
-      handleResult(req, res, end, result);
+  TaskQueue.addTask({ bin: binName, ...req.body }, (err, result) => {
+    if (err) {
+      return handleError(req, res, end, 500, err.message);
     }
-  );
+    handleResult(req, res, end, result);
+  });
 };
 
 module.exports = { processTask };

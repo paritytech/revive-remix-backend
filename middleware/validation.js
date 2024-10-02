@@ -29,19 +29,19 @@ const validateResolcInput = [
 ];
 
 const validateSolcInput = [
-    // Validate cmd
-    body('cmd')
-      .isString()
-      .notEmpty()
-      .custom((value) => {
-        if (value != '--version') {
-          throw new Error('Invalid compiler command');
-        }
-        return true;
-      }),
-  ];
+  // Validate cmd
+  body('cmd')
+    .isString()
+    .notEmpty()
+    .custom((value) => {
+      if (value != '--version') {
+        throw new Error('Invalid compiler command');
+      }
+      return true;
+    }),
+];
 
 module.exports = {
   validateResolcInput,
-  validateSolcInput
+  validateSolcInput,
 };

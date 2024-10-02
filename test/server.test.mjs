@@ -79,7 +79,9 @@ describe('Revive Remix Backend tests', function () {
         if (err) return done(err);
 
         expect(res.status).to.equal(200);
-        expect(res.text).to.match(/Solidity frontend for the revive compiler v\d+\.\d+\.\d+/);
+        expect(res.text).to.match(
+          /Solidity frontend for the revive compiler v\d+\.\d+\.\d+/,
+        );
         done();
       });
   });
