@@ -1,17 +1,32 @@
 const { body } = require('express-validator');
 
-const validateResolcInput = [
-  // Validate cmd
-  body('cmd')
+const validateAllowedKeys = (allowedKeys) => {
+  return body().custom((value) => {
+    const keys = Object.keys(value);
+    keys.forEach((key) => {
+      if (!allowedKeys.includes(key)) {
+        throw new Error(`Unexpected property: ${key}`);
+      }
+    });
+    return true;
+  });
+};
+
+const validateCommand = (allowedCommands) => {
+  return body('cmd')
     .isString()
     .notEmpty()
     .custom((value) => {
-      if (!['--standard-json', '--license', '--version'].includes(value)) {
+      if (!allowedCommands.includes(value)) {
         throw new Error('Invalid compiler command');
       }
       return true;
-    }),
+    });
+};
 
+const validateResolcInput = [
+  validateAllowedKeys(['cmd', 'input']),
+  validateCommand(['--standard-json', '--license', '--version']),
   // Validate input: optional, but if present, must be valid JSON
   body('input')
     .optional()
@@ -29,16 +44,8 @@ const validateResolcInput = [
 ];
 
 const validateSolcInput = [
-  // Validate cmd
-  body('cmd')
-    .isString()
-    .notEmpty()
-    .custom((value) => {
-      if (value != '--version') {
-        throw new Error('Invalid compiler command');
-      }
-      return true;
-    }),
+  validateAllowedKeys(['cmd']),
+  validateCommand(['--version']),
 ];
 
 module.exports = {
