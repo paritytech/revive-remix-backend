@@ -44,11 +44,11 @@ describe('Revive Remix Backend tests', function () {
       config.server.compilationTimeout = originalCompilationTimeout;
     });
 
-    it('should return 500 for compiler execution timeout on /solc endpoint', function (done) {
+    it('should return 500 for compiler execution timeout on /resolc endpoint', function (done) {
       const inputString = JSON.stringify(compilerInput);
 
       request(app)
-        .post('/solc')
+        .post('/resolc')
         .send({
           cmd: '--standard-json',
           input: inputString,
@@ -62,22 +62,50 @@ describe('Revive Remix Backend tests', function () {
     });
   });
 
-  it('should return 200 on /metrics endpoint', function (done) {
-    request(app).get('/metrics').expect(200, done);
-  });
-
-  it('should return 400 for invalid cmd on /solc endpoint', function (done) {
+  it('should return 400 for invalid cmd on /resolc endpoint', function (done) {
     request(app)
-      .post('/solc')
+      .post('/resolc')
       .send({ cmd: 'invalid-command' })
       .expect(400, done);
   });
 
-  it('should return 200 OK for valid --standard-json cmd on /solc endpoint', function (done) {
+  it('should return 200 OK for valid --version cmd on /resolc endpoint', function (done) {
+    request(app)
+      .post('/resolc')
+      .send({
+        cmd: '--version',
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.status).to.equal(200);
+        expect(res.text).to.match(
+          /Solidity frontend for the revive compiler v\d+\.\d+\.\d+/,
+        );
+        done();
+      });
+  });
+
+  it('should return 200 OK for valid --license cmd on /resolc endpoint', function (done) {
+    request(app)
+      .post('/resolc')
+      .send({
+        cmd: '--license',
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.status).to.equal(200);
+        expect(res.text).to.be.a('string');
+        done();
+      });
+  });
+
+  it('should return 200 OK for valid --standard-json cmd on /resolc endpoint', function (done) {
     const inputString = JSON.stringify(compilerInput);
 
     request(app)
-      .post('/solc')
+      .post('/resolc')
       .send({
         cmd: '--standard-json',
         input: inputString,
@@ -85,7 +113,6 @@ describe('Revive Remix Backend tests', function () {
       .end((err, res) => {
         if (err) return done(err);
 
-        // Assert status is 200 OK
         expect(res.status).to.equal(200);
         // Check that the response contains the compiled contract
         const response = JSON.parse(res.text);
@@ -104,7 +131,7 @@ describe('Revive Remix Backend tests', function () {
       });
   });
 
-  it('should return 200 OK with missing import error for --standard-json cmd on /solc endpoint', function (done) {
+  it('should return 200 OK with missing import error for --standard-json cmd on /resolc endpoint', function (done) {
     const compilerInputWithImport = {
       ...compilerInput,
       sources: {
@@ -127,7 +154,7 @@ describe('Revive Remix Backend tests', function () {
     const inputString = JSON.stringify(compilerInputWithImport);
 
     request(app)
-      .post('/solc')
+      .post('/resolc')
       .send({
         cmd: '--standard-json',
         input: inputString,
@@ -148,5 +175,31 @@ describe('Revive Remix Backend tests', function () {
 
         done();
       });
+  });
+
+  it('should return 200 OK for valid --version cmd on /solc endpoint', function (done) {
+    request(app)
+      .post('/solc')
+      .send({
+        cmd: '--version',
+      })
+      .end((err, res) => {
+        if (err) return done(err);
+
+        expect(res.status).to.equal(200);
+        expect(res.text).to.match(/Version: \d+\.\d+\.\d+\+commit\./);
+        done();
+      });
+  });
+
+  it('should return 400 for invalid cmd on /solc endpoint', function (done) {
+    request(app)
+      .post('/solc')
+      .send({ cmd: 'invalid-command' })
+      .expect(400, done);
+  });
+
+  it('should return 200 on /metrics endpoint', function (done) {
+    request(app).get('/metrics').expect(200, done);
   });
 });
