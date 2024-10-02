@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: revive-remix-backend
-    image: paritytech/revive-remix-backend:1.2.0
+    image: paritytech/revive-remix-backend:1.3.0
     ports:
     - containerPort: 3000
     resources:
