@@ -47,7 +47,7 @@ jobs:
 
     - name: Install hadolint
       run: |
-        curl -LO https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+        curl -LO https://github.com/hadolint/hadolint/releases/v2.12.0/download/hadolint-Linux-x86_64
         chmod +x hadolint-Linux-x86_64
         sudo mv hadolint-Linux-x86_64 /usr/local/bin/hadolint
 
