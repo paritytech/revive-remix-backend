@@ -16,27 +16,27 @@ class TaskQueue {
   // Worker function to handle tasks
   processTask(task, done) {
     const { bin, cmd, input } = task;
-    const solc = spawn(bin, [cmd], {
+    const process = spawn(bin, [cmd], {
       timeout: config.server.compilationTimeout,
     });
 
     let stdout = '';
     let stderr = '';
 
-    solc.stdout.on('data', (data) => {
+    process.stdout.on('data', (data) => {
       stdout += data.toString();
     });
 
-    solc.stderr.on('data', (data) => {
+    process.stderr.on('data', (data) => {
       stderr += data.toString();
     });
 
     if (input) {
-      solc.stdin.write(input);
+      process.stdin.write(input);
     }
-    solc.stdin.end();
+    process.stdin.end();
 
-    solc.on('close', (code, signal) => {
+    process.on('close', (code, signal) => {
       if (code === 0) {
         return done(null, stdout);
       }
