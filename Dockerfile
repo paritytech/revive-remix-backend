@@ -5,19 +5,19 @@ ENV RESOLC_VERSION="0.0.1"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
+    --no-install-recommends \
     wget=1.21.3-1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install solc
-RUN wget https://github.com/ethereum/solidity/releases/download/v${SOLC_VERSION}/solc-static-linux \
+RUN wget --progress=dot:mega https://github.com/ethereum/solidity/releases/download/v${SOLC_VERSION}/solc-static-linux \
     -O /usr/local/bin/solc && chmod +x /usr/local/bin/solc
 
 # Download and install re-solc
-RUN wget https://github.com/smiasojed/revive/releases/download/${RESOLC_VERSION}/resolc \
+RUN wget --progress=dot:mega https://github.com/smiasojed/revive/releases/download/${RESOLC_VERSION}/resolc \
     -O /usr/local/bin/resolc && chmod +x /usr/local/bin/resolc
 
-RUN chown node:node /usr/local/bin/resolc
-RUN chown node:node /usr/local/bin/solc
+RUN chown node:node /usr/local/bin/resolc /usr/local/bin/solc
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
