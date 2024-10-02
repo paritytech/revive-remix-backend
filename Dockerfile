@@ -5,7 +5,7 @@ ENV RESOLC_VERSION="0.0.1"
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    wget \
+    wget=1.21.3-1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install solc
