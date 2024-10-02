@@ -1,12 +1,14 @@
 //! This is the compiler worker executed byt Remix IDE
 //! It proxies requests to the solc proxy server
 let missingSources = [];
-let compilerBackend = 'http://localhost:3000/resolc';
+// Staging backend
+//let compilerBackend='https://remix-backend.parity-stg.parity.io'
+let compilerBackend = 'http://localhost:3000';
 
 // synchronous fetch
-function proxySync(cmd, input) {
+function proxySync(path, cmd, input) {
   const request = new XMLHttpRequest();
-  request.open('POST', compilerBackend, false);
+  request.open('POST', compilerBackend + path, false);
   request.setRequestHeader('Content-Type', 'application/json');
   request.send(JSON.stringify({ cmd, input }));
   if (request.status === 200) {
@@ -19,8 +21,9 @@ function proxySync(cmd, input) {
 }
 
 // asynchronous fetch
-async function proxyAsync(cmd, input) {
-  const resp = await fetch(compilerBackend, {
+async function proxyAsync(path, cmd, input) {
+  console.log('fetching ' + compilerBackend + path);
+  const resp = await fetch(compilerBackend + path, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -40,7 +43,7 @@ self.onmessage = async function (e) {
   console.log('soljson.js received message', e.data);
   try {
     if (e.data.cmd === 'compile') {
-      let result = await proxyAsync('--standard-json', e.data.input);
+      let result = await proxyAsync('/resolc', '--standard-json', e.data.input);
       let data = JSON.parse(result);
       if (data.errors) {
         data.errors.forEach((err) => {
@@ -113,12 +116,12 @@ function cwrap(methodName) {
 }
 
 function _solidity_license() {
-  const stdout = proxySync('--license', '');
+  const stdout = proxySync('/resolc', '--license');
   return stdout;
 }
 
 function _solidity_version() {
-  const stdout = proxySync('--version', '');
+  const stdout = proxySync('/solc', '--version');
   const versionMatch = stdout.match(/[v\s]([\d.]+)/);
   return versionMatch[1];
 }

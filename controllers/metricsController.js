@@ -24,7 +24,7 @@ const getMetrics = async (req, res) => {
   } catch (ex) {
     log('error', 'Failed to get metrics', {
       method: req.method,
-      endpoint: req.path,
+      endpoint: req.originalUrl,
       error: ex.message,
     });
     res.status(500).end(ex.message);
