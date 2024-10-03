@@ -2,7 +2,7 @@
 //! It proxies requests to the solc proxy server
 let missingSources = [];
 // Staging backend
-//let compilerBackend='https://remix-backend.parity-stg.parity.io'
+// let compilerBackend='https://remix-backend.parity-stg.parity.io/solc'
 let compilerBackend = 'http://localhost:3000';
 
 // synchronous fetch
@@ -22,7 +22,6 @@ function proxySync(path, cmd, input) {
 
 // asynchronous fetch
 async function proxyAsync(path, cmd, input) {
-  console.log('fetching ' + compilerBackend + path);
   const resp = await fetch(compilerBackend + path, {
     method: 'POST',
     headers: {
