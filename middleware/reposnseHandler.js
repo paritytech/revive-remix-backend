@@ -16,18 +16,18 @@ function getErrorMessage(statusCode) {
 function handleError(request, response, end, status, error = null) {
   httpRequestCount.inc({
     method: request.method,
-    endpoint: request.path,
+    endpoint: request.originalUrl,
     status,
   });
   httpRequestErrors.inc({
     method: request.method,
-    endpoint: request.path,
+    endpoint: request.originalUrl,
     status,
   });
 
   log('error', 'Request processing failed', {
     method: request.method,
-    endpoint: request.path,
+    endpoint: request.originalUrl,
     command: request.body.cmd || 'unknown',
     status,
     error: error || getErrorMessage(status),
@@ -39,12 +39,12 @@ function handleError(request, response, end, status, error = null) {
     // Log the sending failure
     log('error', 'Failed to send error response', {
       method: request.method,
-      endpoint: request.path,
+      endpoint: request.originalUrl,
       status,
       error: sendError.message,
     });
   } finally {
-    end({ method: request.method, endpoint: request.path, status });
+    end({ method: request.method, endpoint: request.originalUrl, status });
   }
 }
 
@@ -52,12 +52,12 @@ function handleResult(request, response, end, result) {
   const status = 200;
   httpRequestCount.inc({
     method: request.method,
-    endpoint: request.path,
+    endpoint: request.originalUrl,
     status,
   });
   log('info', 'Request processed successfully', {
     method: request.method,
-    endpoint: request.path,
+    endpoint: request.originalUrl,
     command: request.body.cmd,
     status,
   });
@@ -68,17 +68,17 @@ function handleResult(request, response, end, result) {
     // Log the sending failure
     log('error', 'Failed to send error response', {
       method: request.method,
-      endpoint: request.path,
+      endpoint: request.originalUrl,
       status,
       error: sendError.message,
     });
     httpRequestErrors.inc({
       method: request.method,
-      endpoint: request.path,
+      endpoint: request.originalUrl,
       status,
     });
   } finally {
-    end({ method: request.method, endpoint: request.path, status });
+    end({ method: request.method, endpoint: request.originalUrl, status });
   }
 }
 

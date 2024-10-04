@@ -8,7 +8,7 @@ const processTask = (binName) => (req, res) => {
   const end = httpRequestDuration.startTimer();
   log('info', 'Received request', {
     method: req.method,
-    endpoint: req.path,
+    endpoint: req.originalUrl,
     command: req.body.cmd || 'unknown',
   });
 
