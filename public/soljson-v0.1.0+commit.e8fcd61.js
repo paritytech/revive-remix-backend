@@ -1,17 +1,25 @@
 //! This is the compiler worker executed byt Remix IDE
 //! It proxies requests to the revive-remix-backend server
-let missingSources = [];  // Declare if not declared yet
+if (typeof missingSources === "undefined") {
+  var missingSources = []
+}
 
+function getBackednUrl() {
 // Staging backend
-// let compilerBackend='https://remix-backend.parity-stg.parity.io'
-const compilerBackend = 'http://localhost:3000';
-const version = '0.1.0'
+// return 'https://remix-backend.parity-stg.parity.io'
+  return 'http://localhost:3000';
+}
 
+function getVersion() {
+  return '0.1.0'
+}
 
 // synchronous fetch
 function proxySync(path, cmd, input) {
   const request = new XMLHttpRequest();
-  request.open('POST', `${compilerBackend}/${path}?version=${version}`, false);
+  const url = getBackednUrl();
+  const version = getVersion();
+  request.open('POST', `${url}/${path}?version=${version}`, false);
   request.setRequestHeader('Content-Type', 'application/json');
   request.send(JSON.stringify({ cmd, input }));
   if (request.status === 200) {
@@ -25,7 +33,9 @@ function proxySync(path, cmd, input) {
 
 // asynchronous fetch
 async function proxyAsync(path, cmd, input) {
-  const resp = await fetch(`${compilerBackend}/${path}?version=${version}`, {
+  const url = getBackednUrl();
+  const version = getVersion();
+  const resp = await fetch(`${url}/${path}?version=${version}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
