@@ -1,0 +1,16 @@
+{
+    "builds": [
+      {
+        "path": "soljson-v0.1.0+commit.e8fcd61.js",
+        "version": "0.1.0",
+        "build": "commit.e8fcd61",
+        "longVersion": "0.1.0+commit.e8fcd61",
+        "urls": [
+        ]
+      }
+    ],
+    "releases": {
+      "0.1.0": "soljson-v0.1.0+commit.e8fcd61.js"
+    },
+    "latestRelease": "0.1.0"
+  }
