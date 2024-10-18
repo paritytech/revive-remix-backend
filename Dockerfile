@@ -22,6 +22,7 @@ RUN chown node:node /usr/local/bin/resolc /usr/local/bin/solc
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
+COPY public/ ./public
 COPY utils/ ./utils
 COPY config/ ./config
 COPY controllers/ ./controllers
