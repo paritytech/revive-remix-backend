@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 
 const validateAllowedKeys = (allowedKeys) => {
   return body().custom((value) => {
@@ -24,9 +24,25 @@ const validateCommand = (allowedCommands) => {
     });
 };
 
+// Define available versions of the Resolc compiler
+const SUPPORTED_VERSIONS = ['0.1.0'];
+
+const validateVersionQuery = () => {
+  return query('version')
+    .optional()
+    .isString()
+    .custom((value) => {
+      if (!SUPPORTED_VERSIONS.includes(value)) {
+        throw new Error(`Unsupported Solidity compiler version: ${value}`);
+      }
+      return true;
+    });
+};
+
 const validateResolcInput = [
   validateAllowedKeys(['cmd', 'input']),
   validateCommand(['--standard-json', '--license', '--version']),
+  validateVersionQuery(),
   // Validate input: optional, but if present, must be valid JSON
   body('input')
     .optional()
@@ -46,6 +62,7 @@ const validateResolcInput = [
 const validateSolcInput = [
   validateAllowedKeys(['cmd']),
   validateCommand(['--version']),
+  validateVersionQuery(),
 ];
 
 module.exports = {
