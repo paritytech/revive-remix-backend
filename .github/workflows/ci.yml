@@ -24,14 +24,14 @@ jobs:
       - name: Install solc
         run: |
           mkdir -p solc
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.26/solc-static-linux \
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.28/solc-static-linux \
             -O solc/solc && chmod +x solc/solc
           echo "$(pwd)/solc/" >> $GITHUB_PATH
       
       - name: Install resolc
         run: |
           mkdir -p resolc
-          wget https://github.com/smiasojed/revive/releases/download/0.0.1/resolc \
+          wget https://github.com/paritytech/revive/releases/download/v0.1.0-dev-4/resolc \
             -O resolc/resolc && chmod +x resolc/resolc
           echo "$(pwd)/resolc/" >> $GITHUB_PATH
           
