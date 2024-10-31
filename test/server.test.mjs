@@ -80,7 +80,7 @@ describe('Revive Remix Backend tests', function () {
 
         expect(res.status).to.equal(200);
         expect(res.text).to.match(
-          /Solidity frontend for the revive compiler v\d+\.\d+\.\d+/,
+          /Solidity frontend for the revive compiler version \d+\.\d+\.\d+/,
         );
         done();
       });
