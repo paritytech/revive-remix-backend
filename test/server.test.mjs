@@ -76,12 +76,8 @@ describe('Revive Remix Backend tests', function () {
         cmd: '--version',
       })
       .end((err, res) => {
-        if (err){
-           console.log('Error:', err);
-           return done(err);
-        }
-        console.log('Response Status:', res.status);
-        console.log('Response Text:', res.text);
+        if (err) return done(err);
+
         expect(res.status).to.equal(200);
         expect(res.text).to.match(
           /Solidity frontend for the revive compiler version \d+\.\d+\.\d+\+commit\./,
