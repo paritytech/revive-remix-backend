@@ -13,6 +13,27 @@ class TaskQueue {
     this.queue = async.queue(this.processTask.bind(this), this.numCPUs);
   }
 
+  generateCompilerError(message) {
+    return {
+      sources: {},
+      errors: [
+        {
+          component: 'general',
+          errorCode: '9999',
+          formattedMessage: 'InternalCompilerError: ' + message,
+          message: 'InternalCompilerError: ' + message,
+          severity: 'error',
+          sourceLocation: {
+            file: '',
+            start: -1,
+            end: -1,
+          },
+          type: 'CompilerCrash',
+        },
+      ],
+    };
+  }
+
   // Worker function to handle tasks
   processTask(task, done) {
     const { bin, cmd, input } = task;
@@ -48,6 +69,10 @@ class TaskQueue {
         case 'SIGKILL':
           error = 'Out of resources';
           break;
+        case 'SIGABRT':
+        case null:
+          // The revive compiler crash
+          return done(null, this.generateCompilerError(stderr));
         default:
           error = stderr || 'Internal error';
       }
