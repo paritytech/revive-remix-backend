@@ -28,7 +28,7 @@ class TaskQueue {
             start: -1,
             end: -1,
           },
-          type: 'CompilerCrash',
+          type: 'InternalCompilerError',
         },
       ],
     };
