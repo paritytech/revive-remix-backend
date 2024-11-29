@@ -3,6 +3,8 @@ const { spawn } = require('child_process');
 const { getCPUsNumber } = require('../utils/cpusNumber');
 const config = require('../config/config');
 const log = require('../middleware/logger');
+const soljson = require('solc/soljson');
+const createRevive = require('./resolc.js')
 
 class TaskQueue {
   constructor() {
@@ -37,48 +39,29 @@ class TaskQueue {
   // Worker function to handle tasks
   processTask(task, done) {
     const { bin, cmd, input } = task;
-    const process = spawn(bin, [cmd], {
-      timeout: config.server.compilationTimeout,
-    });
 
-    let stdout = '';
-    let stderr = '';
+    const revive = createRevive()
+    revive.soljson = soljson
 
-    process.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
+    let stdout = ''
+    revive.setStdoutCallback(function (char) {
+        stdout += char
+    })
 
-    process.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
+    let stderr = ''
+    revive.setStderrCallback(function (char) {
+        stderr += char
+    })
 
-    if (input) {
-      process.stdin.write(input);
+    revive.setStdinData(input)
+
+
+    // Compile the Solidity source code
+    const code = revive.callMain([cmd])
+    if (code === 0) {
+      return done(null, stdout);
     }
-    process.stdin.end();
-
-    process.on('close', (code, signal) => {
-      if (code === 0) {
-        return done(null, stdout);
-      }
-      let error;
-      switch (signal) {
-        case 'SIGTERM':
-          error = 'Request terminated. Compilation timed out';
-          break;
-        case 'SIGKILL':
-          error = 'Out of resources';
-          break;
-        case 'SIGABRT':
-        case null:
-          // The revive compiler crash
-          return done(null, this.generateCompilerError(stderr));
-        default:
-          error = stderr || 'Internal error';
-      }
-
-      return done(new Error(error));
-    });
+    return done(new Error(stderr));
   }
 
   // Method to add a task to the queue
