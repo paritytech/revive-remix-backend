@@ -27,6 +27,7 @@ COPY config/ ./config
 COPY controllers/ ./controllers
 COPY middleware/ ./middleware
 COPY routes/ ./routes
+COPY public ./public
 COPY server.js ./
 RUN chown -R node:node /app
 
