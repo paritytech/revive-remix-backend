@@ -10,5 +10,5 @@ remix-project.patch
 node_modules
 remix-project
 k8s
-public
+public/soljson.js
 test
