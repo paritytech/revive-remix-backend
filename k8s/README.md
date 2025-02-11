@@ -33,7 +33,7 @@ helm install prometheus-adapter prometheus-community/prometheus-adapter --namesp
 
 ```sh
 eval $(minikube docker-env)
-docker build --platform=linux/amd64 -t paritytech/revive-remix-backend:1.3.6 ../
+docker build --platform=linux/amd64 -t paritytech/revive-remix-backend:1.3.7 ../
 ```
 
 ### Deploy your application and configure monitoring
