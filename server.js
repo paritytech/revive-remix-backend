@@ -22,7 +22,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(path.join(__dirname, 'public')));
+  log('info', 'soljson.js endpoint enabled');
+}
 
 app.use('/metrics', metricsRouter);
 app.use('/solc', solcRouter);
