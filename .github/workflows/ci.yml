@@ -31,8 +31,11 @@ jobs:
       - name: Install resolc
         run: |
           mkdir -p resolc
-          wget https://github.com/paritytech/revive/releases/download/v0.1.0-dev.12/resolc \
-            -O resolc/resolc && chmod +x resolc/resolc
+          wget https://github.com/paritytech/revive/releases/download/v0.1.0-dev.12/resolc-x86_64-unknown-linux-musl.tar.gz \
+            -O resolc/resolc-x86_64-unknown-linux-musl.tar.gz && \
+            tar -xvzf /resolc/resolc-x86_64-unknown-linux-musl.tar.gz -C /resolc && \
+            mv resolc/resolc-x86_64-unknown-linux-musl resolc/resolc && \
+            chmod +x /resolc/resolc-x86_64-unknown-linux-musl
           echo "$(pwd)/resolc/" >> $GITHUB_PATH
           
       - name: Test

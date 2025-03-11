@@ -13,10 +13,11 @@ RUN apt-get update && apt-get install -y \
 # Download and install solc
 RUN wget --progress=dot:mega https://github.com/ethereum/solidity/releases/download/v${SOLC_VERSION}/solc-static-linux \
     -O /usr/local/bin/solc && chmod +x /usr/local/bin/solc
-
 # Download and install re-solc
-RUN wget --progress=dot:mega https://github.com/paritytech/revive/releases/download/v${RESOLC_VERSION}/resolc \
-    -O /usr/local/bin/resolc && chmod +x /usr/local/bin/resolc
+RUN wget --progress=dot:mega https://github.com/paritytech/revive/releases/download/v${RESOLC_VERSION}/resolc-x86_64-unknown-linux-musl.tar.gz \
+    -O /usr/local/bin/resolc-x86_64-unknown-linux-musl.tar.gz && \
+    tar -xvzf /usr/local/bin/resolc-x86_64-unknown-linux-musl.tar.gz -C /usr/local/bin && \
+    chmod +x /usr/local/bin/resolc-x86_64-unknown-linux-musl
 
 RUN chown node:node /usr/local/bin/resolc /usr/local/bin/solc
 WORKDIR /app
