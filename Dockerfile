@@ -15,7 +15,7 @@ RUN wget --progress=dot:mega https://github.com/ethereum/solidity/releases/downl
     -O /usr/local/bin/solc && chmod +x /usr/local/bin/solc
 
 # Download and install re-solc
-RUN wget --progress=dot:mega https://github.com/paritytech/revive/releases/download/v${RESOLC_VERSION}/resolc \
+RUN wget --progress=dot:mega https://github.com/paritytech/revive/releases/download/v${RESOLC_VERSION}/resolc-x86_64-unknown-linux-musl \
     -O /usr/local/bin/resolc && chmod +x /usr/local/bin/resolc
 
 RUN chown node:node /usr/local/bin/resolc /usr/local/bin/solc
