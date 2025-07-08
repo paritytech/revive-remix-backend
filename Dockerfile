@@ -6,7 +6,7 @@ ENV RESOLC_VERSION="0.3.0"
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     --no-install-recommends \
-    wget=1.21.3-1+b2 \
+    wget=1.21.3-1+deb12u1 \
     ca-certificates=20230311 \
     && rm -rf /var/lib/apt/lists/*
 
