@@ -1,6 +1,6 @@
 FROM node:22-bookworm-slim
 
-ENV SOLC_VERSION="0.8.28"
+ENV SOLC_VERSION="0.8.30"
 ENV RESOLC_VERSION="0.3.0"
 
 # Install dependencies
